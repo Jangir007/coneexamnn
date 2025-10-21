@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es" class="dark"> <!-- La clase 'dark' se añade por defecto -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cono.Examen - Calculadora Nutricional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.1), transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.1), transparent 40%);
+            transition: opacity 0.5s ease;
+            transform: translateY(calc(var(--scroll-y, 0) * 0.3px));
+        }
+        html:not(.dark) body::before {
+             background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.15), transparent 40%),
+                        radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.15), transparent 40%);
+        }
+        #theme-toggle-sun, html.dark #theme-toggle-moon { display: block; }
+        #theme-toggle-moon, html.dark #theme-toggle-sun { display: none; }
+        .calc-btn {
+            transition: background-color 0.2s ease;
+            @apply p-4 rounded-lg text-xl font-bold text-white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-md mb-8 sticky top-4 z-10 transition-colors duration-300">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Cono.Examen</h1>
+                <nav class="hidden md:flex items-center space-x-4">
+                    <a href="#inicio" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium pb-1 border-b-2 border-transparent hover:border-indigo-500 transition-all">Inicio</a>
+                    <a href="#calculadora" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium pb-1 border-b-2 border-transparent hover:border-indigo-500 transition-all">Calculadora</a>
+                    <a href="#teoria" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium pb-1 border-b-2 border-transparent hover:border-indigo-500 transition-all">Teoría</a>
+                    <a href="#ejemplos" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium pb-1 border-b-2 border-transparent hover:border-indigo-500 transition-all">Ejemplos</a>
+                    <a href="#tabla" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium pb-1 border-b-2 border-transparent hover:border-indigo-500 transition-all">Tabla</a>
+                </nav>
+                <button id="theme-toggle" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg id="theme-toggle-sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="theme-toggle-moon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Página de Inicio -->
+            <div id="inicio" class="page">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md text-center transition-colors duration-300">
+                    <h2 class="text-4xl font-bold mb-4 dark:text-white">Bienvenido a tu Asistente Nutricional</h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">Esta herramienta te ayudará a entender y calcular las calorías y macronutrientes de tus alimentos.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <a href="#calculadora" class="nav-link-card block bg-indigo-50 dark:bg-gray-700 p-6 rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 animate-on-scroll">
+                            <h3 class="font-bold text-xl text-indigo-800 dark:text-indigo-300 mb-2">Calculadora</h3>
+                            <p class="text-indigo-700 dark:text-indigo-400">Calcula rápidamente los valores nutricionales.</p>
+                        </a>
+                        <a href="#teoria" class="nav-link-card block bg-green-50 dark:bg-gray-700 p-6 rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 animate-on-scroll" style="transition-delay: 150ms;">
+                            <h3 class="font-bold text-xl text-green-800 dark:text-green-300 mb-2">Teoría</h3>
+                            <p class="text-green-700 dark:text-green-400">Aprende cómo se calculan las calorías.</p>
+                        </a>
+                        <a href="#ejemplos" class="nav-link-card block bg-yellow-50 dark:bg-gray-700 p-6 rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 animate-on-scroll" style="transition-delay: 300ms;">
+                            <h3 class="font-bold text-xl text-yellow-800 dark:text-yellow-300 mb-2">Ejemplos</h3>
+                            <p class="text-yellow-700 dark:text-yellow-400">Observa casos prácticos para entenderlo.</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página de Calculadora -->
+            <div id="calculadora" class="page">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md animate-on-scroll transition-colors duration-300">
+                    <h2 class="text-3xl font-bold mb-6 text-center dark:text-white">Calculadora Nutricional</h2>
+                    <form id="calorie-form" class="space-y-6">
+                        <div>
+                            <label for="grams" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cantidad del alimento (gramos)</label>
+                            <input type="number" id="grams" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:placeholder-gray-400" placeholder="Ej: 150" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="protein" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proteínas (por 100g)</label>
+                                <input type="number" id="protein" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ej: 25" required>
+                            </div>
+                            <div>
+                                <label for="carbs" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Carbohidratos (por 100g)</label>
+                                <input type="number" id="carbs" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ej: 5" required>
+                            </div>
+                            <div>
+                                <label for="fats" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Grasas (por 100g)</label>
+                                <input type="number" id="fats" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ej: 10" required>
+                            </div>
+                        </div>
+                        <div class="flex justify-center pt-2">
+                             <button type="submit" class="w-full md:w-auto bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-all transform hover:scale-105">Calcular</button>
+                        </div>
+                    </form>
+                    <div id="results" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center" style="display: none;">
+                        <h3 class="text-2xl font-bold mb-4 dark:text-white">Resultados para tu porción:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div class="bg-blue-100 dark:bg-blue-900/50 p-4 rounded-lg"><p class="text-sm text-blue-700 dark:text-blue-300 font-semibold">Proteínas</p><p id="result-protein" class="text-2xl font-bold text-blue-900 dark:text-blue-200"></p></div>
+                            <div class="bg-yellow-100 dark:bg-yellow-900/50 p-4 rounded-lg"><p class="text-sm text-yellow-700 dark:text-yellow-300 font-semibold">Carbohidratos</p><p id="result-carbs" class="text-2xl font-bold text-yellow-900 dark:text-yellow-200"></p></div>
+                            <div class="bg-red-100 dark:bg-red-900/50 p-4 rounded-lg"><p class="text-sm text-red-700 dark:text-red-300 font-semibold">Grasas</p><p id="result-fats" class="text-2xl font-bold text-red-900 dark:text-red-200"></p></div>
+                            <div class="bg-green-100 dark:bg-green-900/50 p-4 rounded-lg col-span-2 md:col-span-1"><p class="text-sm text-green-700 dark:text-green-300 font-semibold">Total Calorías</p><p id="result-calories" class="text-2xl font-bold text-green-900 dark:text-green-200"></p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="standard-calculator" class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md animate-on-scroll mt-8 transition-colors duration-300">
+                    <h2 class="text-3xl font-bold mb-6 text-center dark:text-white">Calculadora Estándar</h2>
+                    <div class="max-w-xs mx-auto p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg">
+                        <input type="text" id="standard-calc-display" class="w-full bg-gray-200 dark:bg-gray-900 text-right p-4 rounded-lg text-3xl mb-4 text-gray-800 dark:text-gray-100" readonly>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button class="calc-btn bg-red-500 hover:bg-red-600 col-span-2">C</button>
+                            <button class="calc-btn bg-indigo-500 hover:bg-indigo-600">/</button>
+                            <button class="calc-btn bg-indigo-500 hover:bg-indigo-600">*</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">7</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">8</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">9</button>
+                            <button class="calc-btn bg-indigo-500 hover:bg-indigo-600">-</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">4</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">5</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">6</button>
+                            <button class="calc-btn bg-indigo-500 hover:bg-indigo-600">+</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">1</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">2</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">3</button>
+                            <button class="calc-btn bg-green-500 hover:bg-green-600 row-span-2">=</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700 col-span-2">0</button>
+                            <button class="calc-btn bg-gray-600 hover:bg-gray-700">.</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página de Teoría -->
+            <div id="teoria" class="page">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md prose dark:prose-invert max-w-none animate-on-scroll transition-colors duration-300">
+                    <h2 class="text-3xl font-bold mb-6">Teoría: ¿Cómo calcular los nutrientes?</h2>
+                    <h3>1. Calcular los Macronutrientes</h3>
+                    <p>La información nutricional se muestra por cada 100g. Para saber los nutrientes de tu porción, usa esta fórmula:</p>
+                    <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg"><code>(Gramos de tu porción / 100) * Nutriente por 100g</code></pre>
+                    <p><strong>Ejemplo (150g de arroz):</strong> Si 100g tienen 28g de carbohidratos, tu porción tiene:</p>
+                    <p><code>(150g / 100) * 28g = 42g de carbohidratos</code></p>
+                    <h3 class="mt-8">2. Calcular las Calorías Totales</h3>
+                    <p>Cada macronutriente aporta diferentes calorías por gramo:</p>
+                    <ul><li><strong>Proteínas:</strong> 4 kcal/g</li><li><strong>Carbohidratos:</strong> 4 kcal/g</li><li><strong>Grasas:</strong> 9 kcal/g</li></ul>
+                    <p>La fórmula para las calorías totales de tu porción es:</p>
+                    <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg"><code>(Gramos Proteína * 4) + (Gramos Carbs * 4) + (Gramos Grasa * 9)</code></pre>
+                </div>
+            </div>
+
+            <!-- Página de Ejemplos -->
+            <div id="ejemplos" class="page">
+                 <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md animate-on-scroll transition-colors duration-300">
+                    <h2 class="text-3xl font-bold mb-6 dark:text-white">Ejemplos Prácticos</h2>
+                    <div class="space-y-6">
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg animate-on-scroll"><h3 class="font-bold text-lg dark:text-white">Pechuga de Pollo (150g)</h3><p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Valores por 100g: Proteína 25g, Grasa 3.6g</p><p><strong>Calorías:</strong> (37.5g Prot. * 4) + (5.4g Grasa * 9) = <strong>198.6 kcal</strong></p></div>
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg animate-on-scroll" style="transition-delay: 100ms;"><h3 class="font-bold text-lg dark:text-white">Arroz Blanco Cocido (200g)</h3><p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Valores por 100g: Carbs 28g, Proteína 2.7g</p><p><strong>Calorías:</strong> (56g Carbs * 4) + (5.4g Prot. * 4) = <strong>245.6 kcal</strong></p></div>
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg animate-on-scroll" style="transition-delay: 200ms;"><h3 class="font-bold text-lg dark:text-white">Aguacate (50g)</h3><p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Valores por 100g: Grasa 15g, Carbs 9g, Proteína 2g</p><p><strong>Calorías:</strong> (7.5g Grasa * 9) + (4.5g Carbs * 4) + (1g Prot. * 4) = <strong>89.5 kcal</strong></p></div>
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg animate-on-scroll" style="transition-delay: 300ms;"><h3 class="font-bold text-lg dark:text-white">Lentejas Cocidas (180g)</h3><p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Valores por 100g: Carbs 20g, Proteína 9g</p><p><strong>Calorías:</strong> (36g Carbs * 4) + (16.2g Prot. * 4) = <strong>208.8 kcal</strong></p></div>
+                        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg animate-on-scroll" style="transition-delay: 400ms;"><h3 class="font-bold text-lg dark:text-white">Tomate (120g)</h3><p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Valores por 100g: Carbs 3.9g, Proteína 0.9g</p><p><strong>Calorías:</strong> (4.68g Carbs * 4) + (1.08g Prot. * 4) = <strong>23.04 kcal</strong></p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página de Tabla Nutricional -->
+            <div id="tabla" class="page">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md animate-on-scroll transition-colors duration-300">
+                    <h2 class="text-3xl font-bold mb-6 dark:text-white">Tabla Nutricional de Alimentos</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">Valores nutricionales aproximados por cada 100 gramos de porción comestible.</p>
+                    <div class="overflow-x-auto rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Alimento</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Calorías (kcal)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Proteínas (g)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Carbs (g)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Grasas (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr><td class="px-6 py-4 whitespace-nowrap">Pechuga de Pollo</td><td class="px-6 py-4">165</td><td class="px-6 py-4">31</td><td class="px-6 py-4">0</td><td class="px-6 py-4">3.6</td></tr>
+                                <tr class="bg-gray-50 dark:bg-gray-700/30"><td class="px-6 py-4 whitespace-nowrap">Salmón</td><td class="px-6 py-4">208</td><td class="px-6 py-4">20</td><td class="px-6 py-4">0</td><td class="px-6 py-4">13</td></tr>
+                                <tr><td class="px-6 py-4 whitespace-nowrap">Huevo</td><td class="px-6 py-4">155</td><td class="px-6 py-4">13</td><td class="px-6 py-4">1.1</td><td class="px-6 py-4">11</td></tr>
+                                <tr class="bg-gray-50 dark:bg-gray-700/30"><td class="px-6 py-4 whitespace-nowrap">Carne de Res (magra)</td><td class="px-6 py-4">250</td><td class="px-6 py-4">26</td><td class="px-6 py-4">0</td><td class="px-6 py-4">15</td></tr>
+                                <tr><td class="px-6 py-4 whitespace-nowrap">Arroz Blanco (cocido)</td><td class="px-6 py-4">130</td><td class="px-6 py-4">2.7</td><td class="px-6 py-4">28</td><td class="px-6 py-4">0.3</td></tr>
+                                <tr class="bg-gray-50 dark:bg-gray-700/30"><td class="px-6 py-4 whitespace-nowrap">Avena</td><td class="px-6 py-4">389</td><td class="px-6 py-4">16.9</td><td class="px-6 py-4">66.3</td><td class="px-6 py-4">6.9</td></tr>
+                                <tr><td class="px-6 py-4 whitespace-nowrap">Lentejas (cocidas)</td><td class="px-6 py-4">116</td><td class="px-6 py-4">9</td><td class="px-6 py-4">20</td><td class="px-6 py-4">0.4</td></tr>
+                                <tr class="bg-gray-50 dark:bg-gray-700/30"><td class="px-6 py-4 whitespace-nowrap">Aguacate</td><td class="px-6 py-4">160</td><td class="px-6 py-4">2</td><td class="px-6 py-4">9</td><td class="px-6 py-4">15</td></tr>
+                                <tr><td class="px-6 py-4 whitespace-nowrap">Brócoli</td><td class="px-6 py-4">34</td><td class="px-6 py-4">2.8</td><td class="px-6 py-4">7</td><td class="px-6 py-4">0.4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link, .nav-link-card');
+            const pages = document.querySelectorAll('.page');
+            const calorieForm = document.getElementById('calorie-form');
+            const resultsDiv = document.getElementById('results');
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const htmlEl = document.documentElement;
+            const stdCalcDisplay = document.getElementById('standard-calc-display');
+            const stdCalc = document.getElementById('standard-calculator');
+
+            // --- Theme Toggling ---
+            if (localStorage.getItem('theme') === 'light') {
+                htmlEl.classList.remove('dark');
+            }
+            themeToggleBtn.addEventListener('click', () => {
+                htmlEl.classList.toggle('dark');
+                localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light');
+            });
+
+            // --- Intersection Observer for Scroll Animations ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+            // --- Page Navigation ---
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.toggle('active', page.id === pageId);
+                });
+                document.querySelectorAll(`#${pageId} .animate-on-scroll:not(.is-visible)`).forEach(el => {
+                    observer.observe(el);
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.getAttribute('href').substring(1);
+                    window.location.hash = pageId;
+                    showPage(pageId);
+                });
+            });
+
+            // --- Nutritional Calculator Logic ---
+            if (calorieForm) {
+                calorieForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const grams = parseFloat(document.getElementById('grams').value) || 0;
+                    const proteinPer100 = parseFloat(document.getElementById('protein').value) || 0;
+                    const carbsPer100 = parseFloat(document.getElementById('carbs').value) || 0;
+                    const fatsPer100 = parseFloat(document.getElementById('fats').value) || 0;
+
+                    const totalProtein = (grams / 100) * proteinPer100;
+                    const totalCarbs = (grams / 100) * carbsPer100;
+                    const totalFats = (grams / 100) * fatsPer100;
+                    const totalCalories = (totalProtein * 4) + (totalCarbs * 4) + (totalFats * 9);
+
+                    document.getElementById('result-protein').textContent = totalProtein.toFixed(1) + 'g';
+                    document.getElementById('result-carbs').textContent = totalCarbs.toFixed(1) + 'g';
+                    document.getElementById('result-fats').textContent = totalFats.toFixed(1) + 'g';
+                    document.getElementById('result-calories').textContent = totalCalories.toFixed(1) + ' kcal';
+                    resultsDiv.style.display = 'block';
+                });
+            }
+
+            // --- Standard Calculator Logic ---
+            if (stdCalc) {
+                stdCalc.addEventListener('click', (e) => {
+                    if (!e.target.matches('.calc-btn')) return;
+
+                    const key = e.target.textContent;
+                    const displayedNum = stdCalcDisplay.value;
+                    
+                    if (key === 'C') {
+                        stdCalcDisplay.value = '';
+                    } else if (key === '=') {
+                        if (displayedNum) {
+                            try {
+                                const sanitized = displayedNum.replace(/[^-()\d/*+.]/g, '');
+                                stdCalcDisplay.value = eval(sanitized);
+                            } catch {
+                                stdCalcDisplay.value = 'Error';
+                            }
+                        }
+                    } else if (['/', '*', '-', '+'].includes(key)) {
+                        if (!['/', '*', '-', '+', '.'].includes(displayedNum.slice(-1))) {
+                            stdCalcDisplay.value += key;
+                        }
+                    } else if (key === '.') {
+                        const segments = displayedNum.split(/[/+\-*]/);
+                        if (!segments[segments.length - 1].includes('.')) {
+                           stdCalcDisplay.value += key;
+                        }
+                    } else {
+                        if (stdCalcDisplay.value === 'Error') stdCalcDisplay.value = '';
+                        stdCalcDisplay.value += key;
+                    }
+                });
+            }
+
+            // --- Background Scroll Effect ---
+            window.addEventListener('scroll', () => {
+                document.body.style.setProperty('--scroll-y', window.scrollY);
+            }, { passive: true });
+
+            // --- Initial Page Load ---
+            const initialPage = window.location.hash.substring(1) || 'inicio';
+            showPage(initialPage);
+        });
+    </script>
+</body>
+</html>
+
